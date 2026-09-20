@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💀 هک شده</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Courier New', Tahoma, monospace;
+    background: #000000;
+    color: #00ff00;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    overflow: hidden;
+    direction: rtl;
+  }
+
+  .container {
+    background: #0a0a0a;
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    padding: 25px;
+    max-width: 750px;
+    width: 100%;
+    box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
+    position: relative;
+    transition: transform 0.05s;
+  }
+
+  .container.shake {
+    animation: shake 0.3s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-10px, -5px); }
+    30% { transform: translate(10px, 5px); }
+    50% { transform: translate(-8px, 8px); }
+    70% { transform: translate(8px, -8px); }
+    90% { transform: translate(-5px, 5px); }
+  }
+
+  .container.glitch {
+    animation: glitch 0.2s infinite;
+  }
+
+  @keyframes glitch {
+    0% { transform: translate(0); filter: hue-rotate(0deg); }
+    25% { transform: translate(-3px, 2px); filter: hue-rotate(90deg); }
+    50% { transform: translate(3px, -2px); filter: hue-rotate(180deg); }
+    75% { transform: translate(-2px, -3px); filter: hue-rotate(270deg); }
+    100% { transform: translate(0); filter: hue-rotate(0deg); }
+  }
+
+  .container.red-alert {
+    border-color: #ff0000;
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.6);
+  }
+
+  .scanlines {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 0, 0.03) 0px,
+      rgba(0, 255, 0, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    border-radius: 10px;
+  }
+
+  /* ===== صفحه شروع ===== */
+  .start-screen {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .skull-icon {
+    font-size: 90px;
+    margin-bottom: 15px;
+    animation: pulse 1.5s infinite;
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); text-shadow: 0 0 20px #ff0000; }
+    50% { transform: scale(1.1); text-shadow: 0 0 40px #ff0000; }
+  }
+
+  h1 {
+    color: #ff0000;
+    font-size: 36px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 20px #ff0000;
+    letter-spacing: 5px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .subtitle {
+    color: #00ff00;
+    font-size: 14px;
+    margin-bottom: 30px;
+    font-family: 'Courier New', monospace;
+    min-height: 20px;
+  }
+
+  .name-label {
+    color: #00ff00;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    font-family: 'Courier New', monospace;
+  }
+
+  .name-input {
+    width: 100%;
+    max-width: 350px;
+    padding: 14px;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    background: #000000;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    text-align: center;
+    outline: none;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  .name-input:focus {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  }
+
+  .btn {
+    padding: 14px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    border: 2px solid;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 2px;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-start {
+    background: #000000;
+    color: #ff0000;
+    border-color: #ff0000;
+    font-size: 18px;
+    padding: 16px 40px;
+  }
+
+  .btn-start:hover {
+    background: #ff0000;
+    color: #000000;
+    box-shadow: 0 0 30px #ff0000;
+  }
+
+  .warning {
+    color: #ff0000;
+    font-size: 12px;
+    margin-top: 25px;
+    opacity: 0.8;
+    font-family: 'Courier New', monospace;
+    animation: blink-warning 1s infinite;
+  }
+
+  @keyframes blink-warning {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ===== صفحه بازی ===== */
+  .game-screen {
+    display: none;
+    position: relative;
+    z-index: 2;
+  }
+
+  .game-screen.active {
+    display: block;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000000;
+    border: 1px solid #00ff00;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .stat {
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  .stat-health { color: #ff0000; }
+  .stat-fear { color: #ff00ff; }
+  .stat-hacked { color: #ff6600; }
+
+  .visual-area {
+    background: #000000;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    height: 200px;
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 100px;
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif;
+  }
+
+  .visual-area.glitch-flash {
+    animation: visual-glitch 0.3s;
+  }
+
+  @keyframes visual-glitch {
+    0%, 100% { background: #000000; }
+    50% { background: #ff0000; }
+  }
+
+  .visual-area::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      rgba(0, 255, 0, 0.05) 2px,
+      transparent 4px
+    );
+    pointer-events: none;
+  }
+
+  .story-text {
+    background: #000000;
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    padding: 20px;
+    min-height: 150px;
+    max-height: 250px;
+    overflow-y: auto;
+    font-size: 15px;
+    line-height: 1.9;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+    color: #00ff00;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+  }
+
+  .story-text::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .story-text::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border-radius: 3px;
+  }
+
+  .cursor-blink::after {
+    content: "▊";
+    color: #00ff00;
+    animation: blink 0.8s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .choice-btn {
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    background: #000000;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: right;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .choice-btn:hover {
+    background: #00ff00;
+    color: #000000;
+    box-shadow: 0 0 20px #00ff00;
+  }
+
+  .choice-btn:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 15px; }
+    h1 { font-size: 26px; }
+    .skull-icon { font-size: 60px; }
+    .visual-area { height: 150px; font-size: 70px; }
+    .story-text { font-size: 13px; padding: 15px; }
+    .choice-btn { font-size: 13px; padding: 12px 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="container" id="container">
+  <div class="scanlines"></div>
+
+  <!-- ===== صفحه شروع ===== -->
+  <div class="start-screen" id="startScreen">
+    <div class="skull-icon">💀</div>
+    <h1>هک شده</h1>
+    <div class="subtitle" id="startSubtitle">در حال بارگذاری...</div>
+
+    <label class="name-label">اسمت چیه؟</label>
+    <input type="text" class="name-input" id="nameInput" placeholder="اسمت رو بنویس...">
+
+    <button class="btn btn-start" id="startBtn">▶ شروع</button>
+
+    <div class="warning">⚠️ هشدار: این بازی شامل صداهای بلند و تصاویر ترسناک است</div>
+  </div>
+
+  <!-- ===== صفحه بازی ===== -->
+  <div class="game-screen" id="gameScreen">
+    <div class="top-bar">
+      <span class="stat stat-health" id="healthLabel">❤️ 100</span>
+      <span class="stat stat-fear" id="fearLabel">😱 0</span>
+      <span class="stat stat-hacked" id="hackedLabel">💀 0%</span>
+    </div>
+
+    <div class="visual-area" id="visualArea">🖥️</div>
+
+    <div class="story-text" id="storyText"></div>
+
+    <div class="choices" id="choices"></div>
+  </div>
+
+</div>
+
+<script>
+window.onload = function() {
+  const container = document.getElementById("container");
+  const startScreen = document.getElementById("startScreen");
+  const gameScreen = document.getElementById("gameScreen");
+  const startSubtitle = document.getElementById("startSubtitle");
+  const nameInput = document.getElementById("nameInput");
+  const startBtn = document.getElementById("startBtn");
+  const storyText = document.getElementById("storyText");
+  const choicesEl = document.getElementById("choices");
+  const visualArea = document.getElementById("visualArea");
+  const healthLabel = document.getElementById("healthLabel");
+  const fearLabel = document.getElementById("fearLabel");
+  const hackedLabel = document.getElementById("hackedLabel");
+
+  let playerName = "";
+  let health = 100;
+  let fear = 0;
+  let hacked = 0;
+  let typingTimer = null;
+  let audioCtx = null;
+
+  // ===== متن‌های شروع =====
+  const startMessages = [
+    "در حال اتصال به سرور...",
+    "در حال نفوذ...",
+    "دسترسی غیرمجاز...",
+    "خطر شناسایی شد...",
+    "سیستم شما در خطر است!"
+  ];
+
+  let msgIndex = 0;
+  setInterval(function() {
+    startSubtitle.textContent = startMessages[msgIndex];
+    msgIndex = (msgIndex + 1) % startMessages.length;
+  }, 1500);
+
+  // ===== صدا =====
+  function initAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch(e) {}
+    }
+  }
+
+  function playBeep(freq, duration, volume, type) {
+    if (!audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      osc.type = type || "sine";
+      gain.gain.setValueAtTime(volume || 0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration / 1000);
+    } catch(e) {}
+  }
+
+  function playScarySound() {
+    playBeep(100, 300, 0.3, "sawtooth");
+    setTimeout(function() { playBeep(80, 400, 0.3, "sawtooth"); }, 200);
+  }
+
+  function playGlitchSound() {
+    for (let i = 0; i < 5; i++) {
+      setTimeout(function() {
+        playBeep(200 + Math.random() * 800, 50, 0.15, "square");
+      }, i * 60);
+    }
+  }
+
+  function playHeartbeat() {
+    playBeep(60, 100, 0.3);
+    setTimeout(function() { playBeep(50, 150, 0.3); }, 150);
+  }
+
+  function playScream() {
+    playBeep(800, 200, 0.3, "sawtooth");
+    setTimeout(function() { playBeep(600, 200, 0.3, "sawtooth"); }, 100);
+    setTimeout(function() { playBeep(400, 300, 0.3, "sawtooth"); }, 200);
+  }
+
+  // ===== افکت‌ها =====
+  function shakeScreen() {
+    container.classList.add("shake");
+    setTimeout(function() { container.classList.remove("shake"); }, 300);
+  }
+
+  function glitchScreen() {
+    container.classList.add("glitch");
+    setTimeout(function() { container.classList.remove("glitch"); }, 400);
+  }
+
+  function redAlert() {
+    container.classList.add("red-alert");
+    setTimeout(function() { container.classList.remove("red-alert"); }, 1000);
+  }
+
+  function flashVisual() {
+    visualArea.classList.add("glitch-flash");
+    setTimeout(function() { visualArea.classList.remove("glitch-flash"); }, 300);
+  }
+
+  // ===== به‌روزرسانی آمار =====
+  function updateStats() {
+    healthLabel.textContent = "❤️ " + health;
+    fearLabel.textContent = "😱 " + fear;
+    hackedLabel.textContent = "💀 " + hacked + "%";
+  }
+
+  // ===== نمایش متن با تایپ =====
+  function typeText(text, callback) {
+    if (typingTimer) clearInterval(typingTimer);
+    storyText.textContent = "";
+    storyText.classList.add("cursor-blink");
+
+    let i = 0;
+    typingTimer = setInterval(function() {
+      if (i < text.length) {
+        storyText.textContent += text[i];
+        storyText.scrollTop = storyText.scrollHeight;
+        i++;
+      } else {
+        clearInterval(typingTimer);
+        typingTimer = null;
+        storyText.classList.remove("cursor-blink");
+        if (callback) callback();
+      }
+    }, 25);
+  }
+
+  // ===== نمایش انتخاب‌ها =====
+  function showChoices(choices) {
+    choicesEl.innerHTML = "";
+    choices.forEach(function(choice) {
+      const btn = document.createElement("button");
+      btn.className = "choice-btn";
+      btn.textContent = choice.text;
+      btn.onclick = function() { playScene(choice.next); };
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  // ===== تغییر تصویر =====
+  function setVisual(emoji) {
+    visualArea.textContent = emoji;
+  }
+
+  // ===== داستان =====
+  function playScene(sceneId) {
+    // ===== شروع =====
+    if (sceneId === "start") {
+      setVisual("🖥️");
+      playBeep(800, 100);
+      typeText(
+        "ساعت ۲ نصفه‌شبه. " + playerName + " توی اتاقت نشستی و داری به صفحه‌ی کامپیوترت نگاه می‌کنی.\n\n" +
+        "یه ایمیل مشکوک اومده: «سیستم شما هک شده. برای نجات، روی این لینک کلیک کنید.»\n\n" +
+        "تو تصمیم می‌گیری بهش نگاه کنی...",
+        function() {
+          showChoices([
+            { text: "🔗 روی لینک کلیک می‌کنم", next: "click_link" },
+            { text: "🗑️ ایمیل رو پاک می‌کنم", next: "delete_email" }
+          ]);
+        }
+      );
+    }
+
+    // ===== کلیک روی لینک =====
+    else if (sceneId === "click_link") {
+      playGlitchSound();
+      glitchScreen();
+      hacked += 20;
+      fear += 15;
+      updateStats();
+      setVisual("💀");
+
+      typeText(
+        "روی لینک کلیک می‌کنی. صفحه‌ی کامپیوترت شروع می‌کنه به لرزیدن.\n\n" +
+        "نور صفحه قرمز می‌شه. یه متن روی صفحه ظاهر می‌شه:\n\n" +
+        "«به دام افتادی!»\n\n" +
+        "صدای خنده‌ی خش‌داری از اسپیکر میاد...\n\n" +
+        "«... حالا من کنترل سیستم تو رو دارم ...»",
+        function() {
+          showChoices([
+            { text: "🔌 کابل برق رو بکشم", next: "unplug" },
+            { text: "⌨️ سعی کنم هکرو پیدا کنم", next: "find_hacker" },
+            { text: "🏃 از اتاق فرار کنم", next: "run_away" }
+          ]);
+        }
+      );
+    }
+
+    // ===== پاک کردن ایمیل =====
+    else if (sceneId === "delete_email") {
+      setVisual("📧");
+      typeText(
+        "ایمیل رو پاک می‌کنی. نفس راحتی می‌کشی.\n\n" +
+        "ولی یهو، صفحه‌ی کامپیوترت خودش روشن می‌شه!\n\n" +
+        "یه متن قرمز روی صفحه ظاهر می‌شه:\n\n" +
+        "«فکر کردی با پاک کردن ایمیل، من می‌رم؟»\n\n" +
+        "«من همیشه اینجا بودم...»",
+        function() {
+          showChoices([
+            { text: "🔌 کابل برق رو بکشم", next: "unplug" },
+            { text: "⌨️ سعی کنم هکرو پیدا کنم", next: "find_hacker" },
+            { text: "🏃 از اتاق فرار کنم", next: "run_away" }
+          ]);
+        }
+      );
+    }
+
+    // ===== کشیدن کابل =====
+    else if (sceneId === "unplug") {
+      playScarySound();
+      shakeScreen();
+      hacked += 15;
+      fear += 20;
+      updateStats();
+      setVisual("🔌");
+
+      typeText(
+        "کابل برق رو می‌کشی. صفحه خاموش می‌شه. همه جا تاریک می‌شه.\n\n" +
+        "ولی...\n\n" +
+        "صدای یه نفس کشیدن از پشتت میاد.\n\n" +
+        "برمی‌گردی. هیچی نیست.\n\n" +
+        "دوباره به صفحه‌ی خاموش نگاه می‌کنی. یهو، صفحه **خودش** روشن می‌شه!",
+        function() {
+          showChoices([
+            { text: "👀 به صفحه نگاه می‌کنم", next: "look_screen" },
+            { text: "🏃 از اتاق فرار می‌کنم", next: "run_away" }
+          ]);
+        }
+      );
+    }
+
+    // ===== نگاه به صفحه =====
+    else if (sceneId === "look_screen") {
+      playScream();
+      flashVisual();
+      glitchScreen();
+      fear += 30;
+      hacked += 25;
+      updateStats();
+      setVisual("👹");
+
+      typeText(
+        "به صفحه نگاه می‌کنی. یه صورت ترسناک روی صفحه ظاهر می‌شه!\n\n" +
+        "چشماش قرمز می‌درخشه. دهنش باز می‌شه و یه صدای جیغ از اسپیکر میاد!\n\n" +
+        "«... تو ... نمی‌تونی ... فرار کنی ...»\n\n" +
+        "صفحه شروع می‌کنه به چشمک زدن. کلمه‌های ترسناک روی صفحه ظاهر می‌شن:\n\n" +
+        "«مرگ... هک... فرار... نمی‌تونی...»",
+        function() {
+          showChoices([
+            { text: "🔌 کابل رو دوباره بکشم", next: "unplug" },
+            { text: "⌨️ سعی کنم هکرو پیدا کنم", next: "find_hacker" },
+            { text: "🏃 از اتاق فرار کنم", next: "run_away" }
+          ]);
+        }
+      );
+    }
+
+    // ===== پیدا کردن هکر =====
+    else if (sceneId === "find_hacker") {
+      playGlitchSound();
+      hacked += 10;
+      updateStats();
+      setVisual("🔍");
+
+      typeText(
+        "شروع می‌کنی به تایپ کردن. سعی می‌کنی هکرو پیدا کنی.\n\n" +
+        "توی کدهای سیستم، یه آدرس IP پیدا می‌کنی. ولی وقتی روش کلیک می‌کنی...\n\n" +
+        "یه پیام ظاهر می‌شه:\n\n" +
+        "«دنبال من می‌گردی؟ من همینجام... توی سیستم تو...»",
+        function() {
+          showChoices([
+            { text: "🔌 کابل برق رو بکشم", next: "unplug" },
+            { text: "🏃 از اتاق فرار کنم", next: "run_away" },
+            { text: "💬 باهاش حرف بزنم", next: "talk_hacker" }
+          ]);
+        }
+      );
+    }
+
+    // ===== حرف با هکر =====
+    else if (sceneId === "talk_hacker") {
+      fear += 15;
+      updateStats();
+      setVisual("💬");
+
+      typeText(
+        "شروع می‌کنی به تایپ کردن:\n\n" +
+        "«تو کی هستی؟ چرا منو هک کردی؟»\n\n" +
+        "جواب میاد:\n\n" +
+        "«من ... یه چیز دیگه‌ام ... نه انسان ... نه روح ...»\n\n" +
+        "«... من توی سیستم‌ها زندگی می‌کنم ... از تو ... انرژی می‌گیرم ...»\n\n" +
+        "«... هر چی بیشتر بترسی ... من قوی‌تر می‌شم ...»",
+        function() {
+          showChoices([
+            { text: "😨 بترسم و فرار کنم", next: "run_away" },
+            { text: "💪 سعی کنم نترسم", next: "stay_calm" },
+            { text: "🔌 کابل برق رو بکشم", next: "unplug" }
+          ]);
+        }
+      );
+    }
+
+    // ===== آروم موندن =====
+    else if (sceneId === "stay_calm") {
+      health -= 10;
+      fear -= 10;
+      updateStats();
+      setVisual("😌");
+
+      typeText(
+        "سعی می‌کنی آروم باشی. نفس عمیق می‌کشی.\n\n" +
+        "موجود توی سیستم، ضعیف‌تر می‌شه.\n\n" +
+        "«... نه ... چرا ... نمی‌ترسی ...»\n\n" +
+        "صفحه شروع می‌کنه به لرزیدن. موجود داره ضعیف می‌شه...",
+        function() {
+          showChoices([
+            { text: "💪 ادامه بده و آروم بمون", next: "stay_calm_final" },
+            { text: "🏃 الان فرار کن", next: "run_away" }
+          ]);
+        }
+      );
+    }
+
+    // ===== پایان آروم =====
+    else if (sceneId === "stay_calm_final") {
+      playBeep(1500, 200);
+      hacked = Math.max(0, hacked - 30);
+      updateStats();
+      setVisual("✨");
+
+      typeText(
+        "آروم می‌مونی. موجود توی سیستم، ضعیف‌تر و ضعیف‌تر می‌شه.\n\n" +
+        "«... نه ... نمی‌تونم ...»\n\n" +
+        "صفحه یهو خاموش می‌شه. همه چیز آروم می‌شه.\n\n" +
+        "🔚 پایان: نجات\n\n" +
+        "تو با آروم موندن، موجود رو شکست دادی.\n\n" +
+        "کامپیوترت دوباره روشن می‌شه، ولی این بار... هیچ چیز ترسناکی نیست.\n\n" +
+        "❤️ جون: " + health + "\n😱 ترس: " + fear + "\n💀 هک: " + hacked + "%",
+        function() {
+          showChoices([
+            { text: "🔄 دوباره بازی کن", next: "restart" },
+            { text: "🚪 خروج", next: "exit" }
+          ]);
+        }
+      );
+    }
+
+    // ===== فرار =====
+    else if (sceneId === "run_away") {
+      playHeartbeat();
+      shakeScreen();
+      health -= 20;
+      fear += 20;
+      updateStats();
+      setVisual("🏃");
+
+      if (Math.random() < 0.5) {
+        typeText(
+          "از اتاق فرار می‌کنی. از پله‌ها پایین می‌ری.\n\n" +
+          "ولی یهو، همه‌ی چراغ‌های خونه خاموش می‌شن.\n\n" +
+          "یه صدای خش‌دار از تاریکی میاد:\n\n" +
+          "«... تو ... نمی‌تونی ... فرار کنی ... من ... همه جا هستم ...»",
+          function() {
+            showChoices([
+              { text: "🚪 از خونه بیرون برو", next: "escape_house" },
+              { text: "🔌 برگرد و کابل رو بکش", next: "unplug" }
+            ]);
+          }
+        );
+      } else {
+        typeText(
+          "می‌دوی سمت در خروجی. در رو باز می‌کنی و می‌پری بیرون.\n\n" +
+          "نفس‌نفس می‌زنی. برمی‌گردی و به خونه نگاه می‌کنی.\n\n" +
+          "توی پنجره‌ی اتاقت، یه سایه‌ی سیاه ایستاده و بهت نگاه می‌کنه...\n\n" +
+          "«... من ... منتظرت ... می‌مونم ...»\n\n" +
+          "🔚 پایان: فرار\n\n" +
+          "تو فرار کردی، ولی نمی‌دونی اون موجود چی بود.",
+          function() {
+            showChoices([
+              { text: "🔄 دوباره بازی کن", next: "restart" },
+              { text: "🚪 خروج", next: "exit" }
+            ]);
+          }
+        );
+      }
+    }
+
+    // ===== فرار از خونه =====
+    else if (sceneId === "escape_house") {
+      playScream();
+      glitchScreen();
+      redAlert();
+      fear += 30;
+      hacked += 20;
+      updateStats();
+      setVisual("👻");
+
+      typeText(
+        "از خونه بیرون می‌ری. ولی یهو، گوشیت شروع می‌کنه به زنگ زدن.\n\n" +
+        "روی صفحه‌ی گوشی، یه پیام ظاهر می‌شه:\n\n" +
+        "«فکر کردی با فرار از خونه، از من فرار کردی؟»\n\n" +
+        "«من توی گوشیت هم هستم...»\n\n" +
+        "صفحه‌ی گوشی یهو خاموش می‌شه. تو توی تاریکی مطلق می‌مونی...",
+        function() {
+          showChoices([
+            { text: "📱 گوشی رو خاموش کن", next: "turn_off_phone" },
+            { text: "🏃 باز هم فرار کن", next: "run_forever" }
+          ]);
+        }
+      );
+    }
+
+    // ===== خاموش کردن گوشی =====
+    else if (sceneId === "turn_off_phone") {
+      hacked = Math.max(0, hacked - 20);
+      updateStats();
+      setVisual("📱");
+
+      typeText(
+        "گوشی رو خاموش می‌کنی. همه چیز آروم می‌شه.\n\n" +
+        "ولی یهو، از توی خونه، صدای جیغ میاد!\n\n" +
+        "صدا بلندتر و بلندتر می‌شه. تو دستت رو روی گوشات می‌ذاری.\n\n" +
+        "بعد از چند ثانیه، همه چیز ساکت می‌شه...\n\n" +
+        "🔚 پایان: سکوت\n\n" +
+        "تو زنده موندی، ولی هیچ‌وقت نفهمیدی اون موجود چی بود.",
+        function() {
+          showChoices([
+            { text: "🔄 دوباره بازی کن", next: "restart" },
+            { text: "🚪 خروج", next: "exit" }
+          ]);
+        }
+      );
+    }
+
+    // ===== فرار ابدی =====
+    else if (sceneId === "run_forever") {
+      playHeartbeat();
+      shakeScreen();
+      health -= 30;
+      fear += 25;
+      hacked += 30;
+      updateStats();
+      setVisual("💀");
+
+      typeText(
+        "می‌دوی. هر جا می‌ری، صدای نفس کشیدن رو می‌شنوی.\n\n" +
+        "توی خیابون، توی ماشین، توی هر جایی...\n\n" +
+        "یهو، همه چیز دورت شروع می‌کنه به چرخیدن.\n\n" +
+        "می‌افتی زمین. چشمات سیاه می‌شه...\n\n" +
+        "وقتی چشمات رو باز می‌کنی، دوباره توی اتاقت هستی. جلوی کامپیوتر.\n\n" +
+        "🔚 پایان: حلقه\n\n" +
+        "تو توی یه حلقه‌ی بی‌پایان گیر کردی. هر بار داستان از اول شروع می‌شه...",
+        function() {
+          showChoices([
+            { text: "🔄 دوباره بازی کن", next: "restart" },
+            { text: "🚪 خروج", next: "exit" }
+          ]);
+        }
+      );
+    }
+
+    // ===== دوباره =====
+    else if (sceneId === "restart") {
+      health = 100;
+      fear = 0;
+      hacked = 0;
+      updateStats();
+      playScene("start");
+    }
+
+    // ===== خروج =====
+    else if (sceneId === "exit") {
+      setVisual("✨");
+      typeText("ممنون که بازی کردی! 💀\n\nبرای شروع دوباره، صفحه رو رفرش کن.");
+      choicesEl.innerHTML = "";
+    }
+  }
+
+  // ===== شروع بازی =====
+  startBtn.onclick = function() {
+    const name = nameInput.value.trim();
+    if (!name) {
+      nameInput.style.borderColor = "#ff0000";
+      nameInput.placeholder = "اسمت رو وارد کن!";
+      return;
+    }
+
+    playerName = name;
+    initAudio();
+
+    startScreen.style.display = "none";
+    gameScreen.classList.add("active");
+
+    updateStats();
+    playScene("start");
+  };
+
+  nameInput.onkeydown = function(e) {
+    if (e.key === "Enter") startBtn.click();
+  };
+
+  nameInput.oninput = function() {
+    nameInput.style.borderColor = "#00ff00";
+  };
+};
+</script>
+</body>
+</html>
